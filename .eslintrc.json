@@ -1,0 +1,56 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "airbnb"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 2018
+    },
+    "plugins": [
+        "react"
+    ],
+    "rules": {
+        "linebreak-style": 0,
+        "indent": 0,
+        "spaced-comment": "off",
+        "no-console": "off",
+        "consistent-return": "off",
+        "func-names": "off",
+        "object-shorthand": "off",
+        "no-process-exit": "off",
+        "no-param-reassign": "off",
+        "no-return-await": "off",
+        "no-underscore-dangle": "off",
+        "class-methods-use-this": "off",
+        "no-unused-vars": 0,
+        "no-multiple-empty-lines": 0,
+        "import/newline-after-import": 0,
+        "eol-last": 0,
+        "semi": 0,
+        "key-spacing": 0,
+        "getAllTours": 0,
+        "comma-dangle": 0,
+        "arrow-parens": 0,
+        "no-trailing-spaces": 0,
+        "max-len": 0,
+        "no-restricted-syntax": 0,
+        "prefer-const": 0,
+        "newline-per-chained-call": 0,
+        "no-else-return": 0,
+        "arrow-body-style": 0,
+        "brace-style": 0,
+        "prefer-destructuring": 0
+    }
+}
