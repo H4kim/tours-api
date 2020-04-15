@@ -8,7 +8,6 @@ const catchAsync = require('./../utils/catchAsync')
 const emailSender = require('../utils/emailSender')
 
 
-
 //generate JWT token
 const signToken = (id) => {
     return jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -17,24 +16,38 @@ const signToken = (id) => {
 }
 
 
+
+const createSendToken = (res, user, statusCode) => {
+    const token = signToken(user._id)
+    res.cookie('jwt', token, {
+        expiresIn: new Date(Date.now()) + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production'
+    })
+
+    user.password = undefined
+    res.status(statusCode).json({
+        status: 'success',
+        token,
+        data: {
+            user
+        }
+    })
+}
+
+
+
 exports.signUp = catchAsync(async (req, res, next) => {
     const newUser = await User.create({
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
-        passwordChangedAt: req.body.passwordChangedAt
+        // passwordChangedAt: req.body.passwordChangedAt
     })
 
-    const token = signToken(newUser._id)
-
-    res.status(201).json({
-        status: 'success',
-        token,
-        data: {
-            user: newUser
-        }
-    })
+    //create and send a new jwt
+    createSendToken(res, newUser, 201)
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -50,15 +63,11 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppError('Incorrect Email or password', 401))
     }
 
-    //if everythink is ok send the token to the client 
-    const token = signToken(user._id)
-
-    res.status(200).json({
-        status: 'success',
-        token
-    })
+    //create and send a new jwt
+    createSendToken(res, user, 200)
 });
 
+//check if the user is logged in 
 exports.protect = catchAsync(async (req, res, next) => {
     //1) check if the header contain a token 
     let token;
@@ -83,11 +92,12 @@ exports.protect = catchAsync(async (req, res, next) => {
     next()
 });
 
+// user => ['admin']
+//restrict 
 exports.restrictTo = (...roles) => {
     return (req, res, next) => {
-        // check if the user is admin
+        // check if the user is allowed 
         if (!roles.includes(req.user.role)) return next(new AppError('You do not have permission to perform this action', 403))
-
         next()
     }
 }
@@ -144,12 +154,9 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     currentUser.passwordResetTokenEx = undefined
 
     await currentUser.save()
-    const token = signToken(currentUser._id)
 
-    res.status(200).json({
-        status: 'succes',
-        token
-    })
+    //create and send a new jwt
+    createSendToken(res, currentUser, 200)
 })
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -160,18 +167,13 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     if (!await currentUser.correctPassword(req.body.currentPassword, currentUser.password)) {
         return next(new AppError('Please enter a valid password', 401))
     }
-    //send a new jwt
-    const token = signToken(currentUser._id)
     //save the password and changedAt field nam 
     currentUser.password = req.body.password
     currentUser.passwordConfirm = req.body.passwordConfirm
     await currentUser.save()
 
-    res.status(200).json({
-        status: 'succes',
-        message: 'Password updated succefully',
-        token
-    })
+    //create and send a new jwt
+    createSendToken(res, currentUser, 200)
 })
 
 

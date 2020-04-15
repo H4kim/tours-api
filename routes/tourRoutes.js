@@ -1,9 +1,12 @@
 const express = require('express');
+const reviewRouter = require('./reviewRoutes')
 const tourController = require('../controllers/tourController')
 const authController = require('../controllers/authController')
 
 
 const router = express.Router();
+
+router.use('/:tourId/reviews', reviewRouter)
 
 router.route('/monthly-plan/:year')
     .get(tourController.getMonthlyPlan)

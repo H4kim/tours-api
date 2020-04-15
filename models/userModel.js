@@ -44,11 +44,16 @@ const userSchema = new mongoose.Schema({
     passwordChangedAt: Date,
     passwordResetToken: {
         type: String,
-        default: null
+        default: undefined
     },
     passwordResetTokenEx: {
         type: Date,
-        default: null
+        default: undefined
+    },
+    active: {
+        type: Boolean,
+        default: true,
+        select: false
     }
 
 });
@@ -70,6 +75,11 @@ userSchema.pre('save', function (next) {
     next()
 })
 
+//don't show user with active set false
+userSchema.pre(/^find/, function (next) {
+    this.find({ active: { $ne: false } })
+    next()
+})
 //a global function that will be owned by all the docs (user.correctPassword)
 userSchema.methods.correctPassword = async (issuedPassword, dbPassword) => {
     return await bcrypt.compare(issuedPassword, dbPassword)

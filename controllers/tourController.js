@@ -41,7 +41,7 @@ exports.addTour = catchAsync(async (req, res, next) => {
 })
 
 exports.getTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate('reviews');
     //tour === null
     if (!tour) {
         //create custom error and send it to errorController.js

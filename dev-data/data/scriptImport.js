@@ -16,7 +16,7 @@ mongoose.connect(DB, {
 });
 
 
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`));
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`));
 
 const deleteData = async () => {
     try {
