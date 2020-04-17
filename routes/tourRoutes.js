@@ -19,7 +19,7 @@ router.route('/top-5-cheap')
 
 router.route('/')
     .get(authController.protect, tourController.getAllTours)
-    .post(tourController.addTour)
+    .post(tourController.createTour)
 
 router.route('/:id')
     .get(tourController.getTour)

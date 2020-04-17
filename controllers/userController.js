@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const factory = require('./handlerFactory')
 const AppError = require('./../utils/appError')
 const catchAsync = require('./../utils/catchAsync');
 
@@ -12,19 +13,7 @@ const filterObj = (obj, ...allowdFields) => {
     return allowedField
 }
 
-exports.getAllUsers = catchAsync(async (req, res) => {
-    const users = await User.find()
 
-    //SEND THE QUERY
-
-    res.status(200).json({
-        status: 'success',
-        results: users.length,
-        data: {
-            users
-        }
-    })
-})
 
 exports.updateMe = catchAsync(async (req, res, next) => {
     //1 Deny changing password
@@ -57,19 +46,17 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.addUser = (req, res) => {
-    console.log('add User')
+exports.createUser = (req, res) => {
+    res.status(500).json({
+        status: 'succes',
+        message: 'this route is not defined , please use /signup instead'
+    })
 }
 
-exports.getUser = (req, res) => {
-    console.log('get User')
-}
+exports.getAllUsers = factory.getAll(User)
 
-exports.updateUser = (req, res) => {
-    console.log('update Userrrr')
-}
+exports.getUser = factory.getOne(User)
 
-exports.deleteUser = (req, res) => {
-    console.log('delete User')
-}
+exports.updateUser = factory.updateOne(User)
 
+exports.deleteUser = factory.deleteOne(User)
