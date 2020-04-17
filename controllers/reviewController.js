@@ -15,8 +15,8 @@ exports.getAllReviews = factory.getAll(Review)
 
 exports.getReview = factory.getOne(Review)
 
-exports.createReview = factory.createOne(Review)
+exports.createReview = factory.createOne(Review) //BUG
 
-exports.deleteReview = factory.deleteOne(Review)
+exports.deleteReview = factory.deleteOne(Review) //BUG
 
-exports.updateReview = factory.updateOne(Review)
+exports.updateReview = factory.updateOne(Review) //BUG

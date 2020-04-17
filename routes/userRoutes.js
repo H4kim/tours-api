@@ -5,19 +5,23 @@ const authController = require('../controllers/authController')
 const router = express.Router();
 
 router.post('/signup', authController.signUp)
-
 router.post('/login', authController.login)
-
 router.post('/forgotpassword', authController.forgotPassword)
-
 router.patch('/resetpassword/:token', authController.resetPassword)
 
-router.patch('/updateMyPassword', authController.protect, authController.updatePassword)
+//from here we need to be loggedIn (DRY => add the protect middleware once)
+router.use(authController.protect)
 
-router.patch('/updateMe', authController.protect, userController.updateMe)
+router.patch('/updateMyPassword', authController.updatePassword)
 
-router.delete('/deleteMe', authController.protect, userController.deleteMe)
+router.patch('/updateMe', userController.updateMe)
 
+router.delete('/deleteMe', userController.deleteMe)
+
+router.get('/me', userController.getMe, userController.getUser)
+
+//from here we need to be an Admin (DRY => add the protect middleware once)
+router.use(authController.restrictTo('admin'))
 
 router.route('/')
     .get(userController.getAllUsers)

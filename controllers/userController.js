@@ -14,20 +14,21 @@ const filterObj = (obj, ...allowdFields) => {
 }
 
 
+exports.getMe = catchAsync(async (req, res, next) => {
+    req.params.id = req.user.id
+    next();
+})
 
 exports.updateMe = catchAsync(async (req, res, next) => {
     //1 Deny changing password
     if (req.password || req.passwordConfirm) return next(new AppError('You can not update the password from here , go to /updatepassword'))
-
     //filter the body from fields other than name,email..
     const filtredBody = filterObj(req.body, 'name', 'email')
-
     //2 find the user and update
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filtredBody, {
         runValidators: true,
         new: true
     })
-
     res.status(200).json({
         status: 'succes',
         message: 'Profil updated succesfully',
@@ -37,21 +38,16 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     })
 })
 
+
 exports.deleteMe = catchAsync(async (req, res, next) => {
     await User.findByIdAndUpdate(req.user.id, { active: false })
-
     res.status(204).json({
         status: 'succes',
         data: null
     })
 })
 
-exports.createUser = (req, res) => {
-    res.status(500).json({
-        status: 'succes',
-        message: 'this route is not defined , please use /signup instead'
-    })
-}
+
 
 exports.getAllUsers = factory.getAll(User)
 
@@ -60,3 +56,11 @@ exports.getUser = factory.getOne(User)
 exports.updateUser = factory.updateOne(User)
 
 exports.deleteUser = factory.deleteOne(User)
+
+
+exports.createUser = (req, res) => {
+    res.status(500).json({
+        status: 'succes',
+        message: 'this route is not defined , please use /signup instead'
+    })
+}
