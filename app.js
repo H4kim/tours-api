@@ -1,25 +1,35 @@
 const express = require('express');
+const path = require('path')
 const morgan = require('morgan');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit')
 const xssClean = require('xss-clean')
 const mongoSanitize = require('express-mongo-sanitize')
 const hpp = require('hpp')
+const cookieParser = require('cookie-parser')
 
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController')
 const tourRoutes = require('./routes/tourRoutes')
 const userRoutes = require('./routes/userRoutes')
 const reviewRoutes = require('./routes/reviewRoutes')
+const viewRoutes = require('./routes/viewRoutes')
 
 
 const app = express();
+
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'));
+//serve static file from the server
+app.use(express.static(path.join(__dirname, 'public')))
+
 
 //use hemlet to sets some header for security puropses
 app.use(helmet())
 
 //body parser , read data from the body (req.body) -- and limit the amount of data coming from the body , > 10kb ? not accepted
 app.use(express.json({ limit: '10kb' }))
+app.use(cookieParser())
 
 //prevent xss and sql attaque (haha its a joke)
 app.use(xssClean())
@@ -38,11 +48,16 @@ const limiter = rateLimit({
     message: 'Too many request in a short time :( '
 })
 
+// app.use((req, res, next) => {
+//     console.log(req.cookies)
+//     next()
+// })
+
 app.use('/api', limiter)
 
-//serve static file from the server
-app.use(express.static(`${__dirname}/public`))
+//ROUTES
 
+app.use('/', viewRoutes)
 app.use('/api/v1/tours', tourRoutes)
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/reviews', reviewRoutes)

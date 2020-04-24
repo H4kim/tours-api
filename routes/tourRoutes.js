@@ -17,6 +17,9 @@ router.route('/tours-stats')
 router.route('/top-5-cheap')
     .get(tourController.topFiveCheap, tourController.getAllTours)
 
+router.get('/tours-within/:distance/center/:latlng/unit/:unit', tourController.getToursWithin)
+router.get('/distances/:latlng/unit/:unit', tourController.getDistances)
+
 router.route('/')
     .get(tourController.getAllTours)
     .post(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourController.createTour)

@@ -52,6 +52,7 @@
         "arrow-body-style": 0,
         "brace-style": 0,
         "prefer-destructuring": 0,
-        "object-curly-newline": 0
+        "object-curly-newline": 0,
+        "import/no-useless-path-segments": 0
     }
 }

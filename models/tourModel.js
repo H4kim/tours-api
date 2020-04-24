@@ -28,8 +28,8 @@ const TourSchema = new mongoose.Schema({
         type: Number,
         default: 4.5,
         min: [1, 'Rating must equal or higher then 1'],
-        max: [5, 'Rating must equal or less then 5']
-
+        max: [5, 'Rating must equal or less then 5'],
+        set: val => Math.round(val * 10) / 10 //trick to round to one number after the coma
     },
     ratingsQuantity: {
         type: Number,
@@ -110,6 +110,14 @@ const TourSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 })
 
+
+//add indexes
+TourSchema.index({ price: 1, ratingsAverage: -1 })
+TourSchema.index({ slug: 1 })
+TourSchema.index({ startLocation: '2dsphere' })
+
+
+//virtual fields
 TourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7
 })
@@ -119,6 +127,7 @@ TourSchema.virtual('reviews', {
     foreignField: 'tour',
     localField: '_id'
 })
+
 
 //1) DOCUMENT MIDDLWARES
 //middleware for mongodb (run only  before save() and create() )
@@ -160,11 +169,12 @@ TourSchema.post(/^find/, function (docs, next) {
 })
 
 //2) AGGREGATION MIDDLWARES
-TourSchema.pre('aggregate', function (next) {
-    // console.log(this.pipeline())
-    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } })
-    next();
-})
+
+// TourSchema.pre('aggregate', function (next) {
+//     // console.log(this.pipeline())
+//     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } })
+//     next();
+// })
 
 const Tour = mongoose.model('Tour', TourSchema)
 module.exports = Tour;

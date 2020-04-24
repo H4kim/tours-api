@@ -945,6 +945,7 @@ body {
   text-shadow: none;
   border-color: #f7f7f7;
 }
+
 .nav__search {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1321,4 +1322,10 @@ body {
   box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
   -webkit-transform: translateY(-2px);
   transform: translateY(-2px);
+}
+
+.user-name {
+  color: rgba(255, 255, 255, 0.651);
+  font-size: 15px;
+  font-weight: 800;
 }

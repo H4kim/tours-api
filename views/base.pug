@@ -1,0 +1,23 @@
+doctype html
+html(lang='en')
+  head
+    block head
+      meta(charset='UTF-8')
+      meta(name='viewport' content='width=device-width,initial-scale=1')
+      link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700' rel='stylesheet')
+      link(rel='stylesheet' href='/css/style.css')
+      link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+      title Natours | #{title}
+  body
+    //HEADER 
+    include _header
+    
+    // CONTENT 
+    block content
+      h1 this is place holder heading
+    
+    //FOOTER
+    include _footer
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js')
+    script(src='/js/mapBox.js')
+    script(src='/js/login.js')
