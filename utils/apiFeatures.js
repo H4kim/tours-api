@@ -1,7 +1,7 @@
 class APIFeatures {
     constructor(query/*Tour.find()*/, queryString/*query*/) {
         this.query = query;
-        this.queryString = queryString
+        this.queryString = queryString 
     }
 
     // 1A) Simple filtring
