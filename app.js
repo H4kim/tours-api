@@ -14,6 +14,7 @@ const tourRoutes = require('./routes/tourRoutes')
 const userRoutes = require('./routes/userRoutes')
 const reviewRoutes = require('./routes/reviewRoutes')
 const viewRoutes = require('./routes/viewRoutes')
+const bookingRoute = require('./routes/bookingRoutes')
 
 
 const app = express();
@@ -34,7 +35,7 @@ app.use(cookieParser())
 //prevent xss and sql attaque (haha its a joke)
 app.use(xssClean())
 app.use(mongoSanitize())
-
+ 
 app.use(hpp({
     whitelist: ['ratingsAverage', 'ratingsQuantity', 'duration', 'maxGroupSize', 'difficulty', 'price']
 }))
@@ -61,6 +62,7 @@ app.use('/', viewRoutes)
 app.use('/api/v1/tours', tourRoutes)
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/reviews', reviewRoutes)
+app.use('/api/v1/bookings', bookingRoute)
 
 //unfounded path error
 app.all('*', (req, res, next) => {

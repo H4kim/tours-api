@@ -27,33 +27,62 @@ const handleValidationErrorDB = (err) => {
 }
 
 
-const sendErrorDevelopment = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message,
-        err: err,
-        stack: err.stack
-    })
+const sendErrorDevelopment = (err,req,res) => {
+    if (req.originalUrl.startsWith('/api')) {
+        //API
+        res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message,
+            err: err,
+            stack: err.stack
+        })
+    } else {
+        //Rendred 
+        res.status(err.statusCode).render('error', {
+            title : 'Something went wrong',
+            message : err.message
+        })
+    }
 }
 
 
-const sendErrorProduction = (err, res) => {
-    if (err.isOperational) {
-        res.status(err.statusCode).json({
-            status: err.status,
+const sendErrorProduction = (err, req, res) => {
+    //A) API
+    if (req.originalUrl.startsWith('/api')) {
+        if (err.isOperational) {
+            console.error('ERROR 💥', err)
+            res.status(err.statusCode).json({
+                status: err.status,
+                message: err.messages
+            })
+        }
+        //if not operational send a generic message without inforamation (third package libray errors , ....)
+        else {
+            //) log the error in the server log 💻 
+            console.error('ERROR 💥', err)
+            res.status(500).json({
+                status: 'Error',
+                message: 'Somthing went wrong',
+            });
+        }
+    }
+    //B) Rendred 
+    else if (err.isOperational) {
+        console.error('ERROR 💥', err)
+        res.status(err.statusCode).render('error',{
+            title: 'Something went wrong',
             message: err.messages
         })
-    }
-    //if not operational send a generic message without inforamation (third package libray errors , ....)
-    else {
+    } else {
         //) log the error in the server log 💻 
-        // console.error('ERROR 💥', err)
-        res.status(500).json({
-            status: 'Error',
-            message: 'Somthing went wrong',
+        console.error('ERROR 💥', err)
+        res.status(500).render('error' , {
+            title: 'Something went wrong',
+            message: 'Please try again later'
         });
     }
-};
+}
+
 
 
 
@@ -62,7 +91,7 @@ module.exports = (err, req, res, next) => {
     err.status = err.status || 'error';
 
     if (process.env.NODE_ENV === 'development') {
-        sendErrorDevelopment(err, res)
+        sendErrorDevelopment(err, req, res)
     }
 
     else if (process.env.NODE_ENV === 'production') {
@@ -75,6 +104,6 @@ module.exports = (err, req, res, next) => {
         if (error.name === 'JsonWebTokenError') error = handleJwtError()
         if (error.name === 'TokenExpiredError') error = handleExpiredError()
 
-        sendErrorProduction(error, res)
+        sendErrorProduction(error,req, res)
     }
 }

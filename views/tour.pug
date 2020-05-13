@@ -6,6 +6,7 @@ block append head
   link(href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css')
 
 
+
 mixin overviewBox(icon,label,text)
   .overview-box__detail
     svg.overview-box__icon
@@ -83,4 +84,7 @@ block content
       .cta__content
         h2.heading-secondary What are you waiting for?
         p.cta__text= `${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!`
-        button.btn.btn--green.span-all-rows Book tour now!
+        if user
+          button.btn.btn--green.span-all-rows#book-tour(data-tour-id=`${tour.id}`) Book tour now!
+        else 
+          a.btn.btn--green.span-all-rows(href='/login') Login to book tour

@@ -1,6 +1,6 @@
-const AppError = require('./../utils/appError');
-const APIFeatures = require('./../utils/apiFeatures')
-const catchAsync = require('./../utils/catchAsync')
+const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures')
+const catchAsync = require('../utils/catchAsync')
 
 exports.deleteOne = (Modal) => {
     return catchAsync(async (req, res, next) => {

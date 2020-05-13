@@ -946,6 +946,11 @@ body {
   border-color: #f7f7f7;
 }
 
+.nav__el--logout {
+  background-color: rgba(255, 0, 0, 0.479);
+  padding: 8px 15px;
+  border-radius: 3px;
+}
 .nav__search {
   display: -webkit-box;
   display: -ms-flexbox;

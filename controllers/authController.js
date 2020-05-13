@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs')
 const User = require('./../models/userModel')
 const AppError = require('./../utils/appError')
 const catchAsync = require('./../utils/catchAsync')
-const emailSender = require('../utils/emailSender')
+const Email = require('../utils/emailSender')
 
 //generate JWT token
 const signToken = (id) => {
@@ -44,6 +44,10 @@ exports.signUp = catchAsync(async (req, res, next) => {
         passwordConfirm: req.body.passwordConfirm,
         // passwordChangedAt: req.body.passwordChangedAt
     })
+    
+    //send welcome email
+    const url = `${req.protocol}://${req.get('host')}/me`
+    await new Email(newUser, url).sendWelcome()
 
     //create and send a new jwt
     createSendToken(res, newUser, 201)
@@ -65,6 +69,18 @@ exports.login = catchAsync(async (req, res, next) => {
     //create and send a new jwt
     createSendToken(res, user, 200)
 });
+
+//logout 
+exports.logout = (req, res) => {
+    res.cookie('jwt', 'loggedout', {
+        expiresIn : new Date(Date.now() + 10 * 1000),
+        httpOnly : true
+    })
+    
+    res.status(200).json({
+        status : 'success'
+    })
+}
 
 //check if the user is logged in 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -91,35 +107,40 @@ exports.protect = catchAsync(async (req, res, next) => {
 
     //ACCESS GARANTED TO PROTECTED ROUTE
     req.user = currentUser
+    res.locals.user = currentUser
     next()
 });
 
 
 //check if the user is logged in (server side rendring only) all route in viewRoutes
-exports.isLoggedin = catchAsync(async (req, res, next) => {
+exports.isLoggedin = async (req, res, next) => {
     //1) check if the header contain a token 
-
     if (req.cookies.jwt) {
-        let token = req.cookies.jwt
+        try {
+            let token = req.cookies.jwt
 
-        //2) token validation
-        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-        //3) check if the user still exist
-        const currentUser = await User.findById(decoded.id)
+            //2) token validation
+            const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+            //3) check if the user still exist
+            const currentUser = await User.findById(decoded.id)
 
-        if (!currentUser) return next()
+            if (!currentUser) return next()
 
-        //4) check if the password wasn't changed after the token was issued
-        if (currentUser.isPasswordChanged(decoded.iat)) {
+            //4) check if the password wasn't changed after the token was issued
+            if (currentUser.isPasswordChanged(decoded.iat)) {
+                return next()
+            }
+
+            //ACCESS GARANTED send local object to template (accedable in html) 
+            res.locals.user = currentUser
             return next()
         }
-
-        //ACCESS GARANTED send local object to template (accedable in html) 
-        res.locals.user = currentUser
-        return next()
+        catch (err) {
+            return next()
+        }
     }
     next()
-});
+};
 
 // user => ['admin']
 //restrict 
@@ -134,34 +155,26 @@ exports.restrictTo = (...roles) => {
 exports.forgotPassword = catchAsync(async (req, res, next) => {
     //1) get email from the user
     //if the email doesn't exist => ERROR
-    const currentUser = await User.findOne({ email: req.body.email })
-    if (!currentUser) return next(new AppError('if it is a valid email , You will receive an link to reset your password', 200))
+    const user = await User.findOne({ email: req.body.email })
+    if (!user) return next(new AppError('There is no email with this adress', 400))
 
     //generate and encrypt a token and save it to the db (expire in 10mn)
-    const token = currentUser.createPasswordResetToken()
-    await currentUser.save({ validateBeforeSave: false })
+    const token = user.createPasswordResetToken()
+    await user.save({ validateBeforeSave: false })
+    
     //3)send the non-encrypted token to the user
-    const link = `${req.protocol}://${req.get('host')}/api/v1/resetpassword/${token}`
-    const message = `Your forgot your password ? please click on the link to reset : 
-                        ${link} if you did't forgot your password ignore this email`
-
-    const emailOptions = {
-        email: currentUser.email,
-        subject: 'Your access token to change password (valid for 10mn)',
-        message
-    }
-
-    try {
-        await emailSender(emailOptions)
+    try {  
+        const link = `${req.protocol}://${req.get('host')}/api/v1/users/resetpassword/${token}`
+        await new Email(user, link).sendReset()
 
         res.status(200).json({
-            status: 'Success',
-            message: 'Token sent to the email'
+            status : 'success',
+            message : 'if it is a valid email , You will receive an link to reset your password'
         })
     } catch (err) {
-        currentUser.passwordResetToken = undefined;
-        currentUser.passwordResetTokenEx = undefined;
-        await currentUser.save({ validateBeforeSave: false })
+        user.passwordResetToken = undefined;
+        user.passwordResetTokenEx = undefined;
+        await user.save({ validateBeforeSave: false })
 
         return next(new AppError('Error with sending the email please try again later', 500))
     }
@@ -187,6 +200,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     //create and send a new jwt
     createSendToken(res, currentUser, 200)
 })
+
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
     //1 get the current user
