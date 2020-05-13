@@ -65,7 +65,7 @@ reviewSchema.index({ user: 1, tour: 1 }, {
 //set the rating aver and rating num  on each add new review 
 reviewSchema.post('save', function () {
     this.constructor.calculateAverageRating(this.tour)
-    console.log(this)
+    // console.log(this)
 })
 
 //set the rating aver and rating num  on each delete/update a review 

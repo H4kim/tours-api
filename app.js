@@ -7,6 +7,7 @@ const xssClean = require('xss-clean')
 const mongoSanitize = require('express-mongo-sanitize')
 const hpp = require('hpp')
 const cookieParser = require('cookie-parser')
+const compression = require('compression');
 
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController')
@@ -38,7 +39,7 @@ app.use(mongoSanitize())
  
 app.use(hpp({
     whitelist: ['ratingsAverage', 'ratingsQuantity', 'duration', 'maxGroupSize', 'difficulty', 'price']
-}))
+})) 
 //morgan middlware
 app.use(morgan('dev'));
 
@@ -48,16 +49,14 @@ const limiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     message: 'Too many request in a short time :( '
 })
-
-// app.use((req, res, next) => {
-//     console.log(req.cookies)
-//     next()
-// })
-
 app.use('/api', limiter)
 
-//ROUTES
+//compress responses
+app.use(compression())
 
+
+
+//ROUTES
 app.use('/', viewRoutes)
 app.use('/api/v1/tours', tourRoutes)
 app.use('/api/v1/users', userRoutes)

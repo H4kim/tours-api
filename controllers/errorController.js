@@ -27,7 +27,7 @@ const handleValidationErrorDB = (err) => {
 }
 
 
-const sendErrorDevelopment = (err,req,res) => {
+const sendErrorDevelopment = (err, req, res) => {
     if (req.originalUrl.startsWith('/api')) {
         //API
         res.status(err.statusCode).json({
@@ -69,14 +69,14 @@ const sendErrorProduction = (err, req, res) => {
     //B) Rendred 
     else if (err.isOperational) {
         console.error('ERROR 💥', err)
-        res.status(err.statusCode).render('error',{
+        res.status(err.statusCode).render('error', {
             title: 'Something went wrong',
             message: err.messages
         })
     } else {
         //) log the error in the server log 💻 
         console.error('ERROR 💥', err)
-        res.status(500).render('error' , {
+        res.status(500).render('error', {
             title: 'Something went wrong',
             message: 'Please try again later'
         });
@@ -96,7 +96,6 @@ module.exports = (err, req, res, next) => {
 
     else if (process.env.NODE_ENV === 'production') {
         let error = { ...err }
-        console.log(error)
         if (error.name === 'CastError') error = handleCastErrorDB(error)
         // if (error.code === 11000) handleMongoErrorDB(error)
         if (error.code === 11000) error = handleMongoErrorDB(error)
@@ -104,6 +103,6 @@ module.exports = (err, req, res, next) => {
         if (error.name === 'JsonWebTokenError') error = handleJwtError()
         if (error.name === 'TokenExpiredError') error = handleExpiredError()
 
-        sendErrorProduction(error,req, res)
+        sendErrorProduction(error, req, res)
     }
 }

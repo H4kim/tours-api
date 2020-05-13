@@ -59,7 +59,6 @@ exports.resizeTourImages = async (req, res, next) => {
     }))
 
     next()
-    console.log(req.files)
 }
 
 
