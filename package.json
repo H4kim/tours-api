@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "@babel/polyfill": "^7.8.7",
     "axios": "^0.19.2",
@@ -38,12 +40,15 @@
     "eslint-plugin-react-hooks": "^1.7.0"
   },
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "start:prod": "SET NODE_ENV=production & nodemon server.js",
     "debug": "ndb node server.js",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build:js": "parcel build ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
-  "author": "",
-  "license": "ISC"
+  "engines": {
+    "node": ">=10.0.0"
+  }
+  
 }
